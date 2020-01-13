@@ -4,6 +4,8 @@ Have you ever been in a situation where it was difficult for you to give an answ
 
 <img src="./screen.gif" width="300"></img>
 
+Try it <a target="_blank" href="https://vladimir.vovk.in/magic-ball/magic-ball.html">here</a>.
+
 ## Credits
 
 - Volume icons by <a target="_blank" href="https://fontawesome.com/">Font Awesome</a>
