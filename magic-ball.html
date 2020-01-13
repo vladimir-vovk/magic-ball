@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P|Source+Sans+Pro&display=swap" rel="stylesheet">
+
+    <title>Magic Ball</title>
+
+    <style type="text/css">
+      h1 {
+        font-family: 'Press Start 2P', cursive;
+        margin-bottom: 5rem;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 90vh;
+      }
+      #volume {
+        width: 80px;
+        height: 80px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        margin-top: 2rem;
+        outline: none;
+        opacity: 0;
+        border: 1px solid white;
+        background: white;
+        border-radius: 4px;
+      }
+      #volume:active {
+        background: WhiteSmoke;
+      }
+      #volume:hover {
+        border: 1px solid lightgray;
+      }
+      #volume svg {
+        outline: none;
+        transition: transform 0.2s ease-in-out;
+      }
+      .ball {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 50vh;
+        width: 50vh;
+        background-color: black;
+        background: radial-gradient(#444849, #000000);
+        border-radius: 25vh;
+        opacity: 0;
+      }
+      .window {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        height: 25vh;
+        width: 25 vh;
+        background-color: black;
+        border-radius: 14vh;
+        border-style: solid;
+        border-width: 5px;
+        border-color: rgb(92, 96, 104);
+      }
+      .triangle-container {
+        width: 25vh;
+        height: 25vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+      }
+      .triangle {
+        height: 0;
+        width: 0;
+        border-left: 18vh solid transparent;
+        border-right: 18vh solid transparent;
+        border-top: 28vh solid green;
+        margin-top: 9vh;
+      }
+      .circle-gradient {
+        position: absolute;
+        width: 68%;
+        height: 68%;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(255, 255, 255, 0.5),
+          rgba(255, 255, 255, 0) 58%
+        );
+      }
+      .answer {
+        position: absolute;
+        color: white;
+        width: 45%;
+        text-align: center;
+        padding-bottom: 1vh;
+        font-size: larger;
+        user-select: none;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        font-family: 'Source Sans Pro', sans-serif;
+      }
+
+      .fade-out {
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s linear 300ms, opacity 300ms;
+      }
+
+      .fade-in {
+        visibility: visible;
+        opacity: 1;
+        transition: visibility 0s linear 0s, opacity 300ms;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 id="title">Loading...</h1>
+    <div class="ball">
+      <div class="window">
+        <div class="triangle-container" onclick="onBallClick(event)">
+          <div class="triangle"></div>
+          <div class="circle-gradient"></div>
+          <span class="answer" id="answer"></span>
+        </div>
+      </div>
+    </div>
+    <button id="volume" onclick="handleVolume()">
+      <svg id="volume-on" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="volume-up" class="svg-inline--fa fa-volume-up fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zm233.32-51.08c-11.17-7.33-26.18-4.24-33.51 6.95-7.34 11.17-4.22 26.18 6.95 33.51 66.27 43.49 105.82 116.6 105.82 195.58 0 78.98-39.55 152.09-105.82 195.58-11.17 7.32-14.29 22.34-6.95 33.5 7.04 10.71 21.93 14.56 33.51 6.95C528.27 439.58 576 351.33 576 256S528.27 72.43 448.35 19.97zM480 256c0-63.53-32.06-121.94-85.77-156.24-11.19-7.14-26.03-3.82-33.12 7.46s-3.78 26.21 7.41 33.36C408.27 165.97 432 209.11 432 256s-23.73 90.03-63.48 115.42c-11.19 7.14-14.5 22.07-7.41 33.36 6.51 10.36 21.12 15.14 33.12 7.46C447.94 377.94 480 319.54 480 256zm-141.77-76.87c-11.58-6.33-26.19-2.16-32.61 9.45-6.39 11.61-2.16 26.2 9.45 32.61C327.98 228.28 336 241.63 336 256c0 14.38-8.02 27.72-20.92 34.81-11.61 6.41-15.84 21-9.45 32.61 6.43 11.66 21.05 15.8 32.61 9.45 28.23-15.55 45.77-45 45.77-76.88s-17.54-61.32-45.78-76.86z"></path></svg>
+
+      <svg id="volume-off" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="volume-mute" class="svg-inline--fa fa-volume-mute fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zM461.64 256l45.64-45.64c6.3-6.3 6.3-16.52 0-22.82l-22.82-22.82c-6.3-6.3-16.52-6.3-22.82 0L416 210.36l-45.64-45.64c-6.3-6.3-16.52-6.3-22.82 0l-22.82 22.82c-6.3 6.3-6.3 16.52 0 22.82L370.36 256l-45.63 45.63c-6.3 6.3-6.3 16.52 0 22.82l22.82 22.82c6.3 6.3 16.52 6.3 22.82 0L416 301.64l45.64 45.64c6.3 6.3 16.52 6.3 22.82 0l22.82-22.82c6.3-6.3 6.3-16.52 0-22.82L461.64 256z"></path></svg>
+    </button>
+  </body>
+
+  <script>
+    var synth, voice, isVolumeOn
+
+    function ready() {
+      const { readyState } = document;
+      if (readyState === "complete") {
+        init();
+      }
+    }
+
+    document.onreadystatechange = ready;
+
+    function init() {
+      isVolumeOn = false
+
+      document.getElementById('title').innerHTML = getString('title')
+      document.getElementById('answer').innerHTML = getString('answer')
+
+      synth = window.speechSynthesis
+      window.speechSynthesis.onvoiceschanged = () => {
+        getVoices();
+      }
+
+      const ball = document.getElementsByClassName('ball')[0]
+      const volume = document.getElementById('volume')
+      const volumeOn = document.getElementById('volume-on')
+
+      shake(ball, 20)
+      setTimeout(function() {
+        ball.classList.add('fade-in')
+        volumeOn.style.display = 'none'
+        volume.classList.add('fade-in')
+        volume.style.opacity = 1
+      }, 300)
+    }
+
+    function handleVolume() {
+      const volumeOn = document.getElementById('volume-on')
+      const volumeOff = document.getElementById('volume-off')
+
+      isVolumeOn = !isVolumeOn
+      volumeOn.style.display = isVolumeOn ? 'block' : 'none'
+      volumeOff.style.display = isVolumeOn ? 'none' : 'block'
+
+      if (isVolumeOn) {
+        say(getString('soundOn'))
+      }
+    }
+
+    function getVoices() {
+      voice = synth.getVoices().find(v => v.lang.slice(0, 2) === navigator.language.slice(0, 2))
+      if (!voice) {
+        voice = synth.getVoices().find(v => v.lang === 'en-US')
+      }
+    }
+
+   function say(text) {
+     if (!isVolumeOn) {
+       return
+     }
+
+     if (synth.speaking) {
+       console.log('already speaking')
+       return
+     }
+
+     const utterThis = new SpeechSynthesisUtterance(text)
+     utterThis.voice = voice
+
+     synth.speak(utterThis)
+   }
+
+
+   function getString(id) {
+     const lang = navigator.language || navigator.userLanguage
+     let messages = {
+       title: 'Magic Ball',
+       answer: 'Ask a question and click me',
+       soundOn: 'Sound on',
+       itIsCertain: 'It is certain',
+       itIsDecidedlySo: 'It is decidedly so',
+       withoutADoubt: 'Without a doubt',
+       yesDefinitely: 'Yes — definitely',
+       youMayRelyOnIt: 'You may rely on it',
+       asISeeItYes: 'As I see it, yes',
+       mostLikely: 'Most likely',
+       outlookGood: 'Outlook good',
+       signsPointToYes: 'Signs point to yes',
+       yes: 'Yes',
+       replyHazyTryAgain: 'Reply hazy, try again',
+       askAgainLater: 'Ask again later',
+       betterNotTellYouNow: 'Better not tell you now',
+       cannotPredictNow: 'Cannot predict now',
+       concentrateAndAskAgain: 'Concentrate and ask again',
+       dontCountOnIt: 'Don’t count on it',
+       myReplyIsNo: 'My reply is no',
+       mySourcesSayNo: 'My sources say no',
+       outlookNotSoGood: 'Outlook not so good',
+       veryDoubtful: 'Very doubtful'
+     }
+
+     if (lang === 'ru' || lang === 'ru-RU') {
+       messages = {
+         title: 'Волшебный шар',
+         answer: 'Задай вопрос и нажми на меня',
+         soundOn: 'Звук включен',
+         itIsCertain: 'Бесспорно',
+         itIsDecidedlySo: 'Предрешено',
+         withoutADoubt: 'Никаких сомнений',
+         yesDefinitely: 'Определённо да',
+         youMayRelyOnIt: 'Можешь быть уверен в этом',
+         asISeeItYes: 'Мне кажется — «да»',
+         mostLikely: 'Вероятнее всего',
+         outlookGood: 'Хорошие перспективы',
+         signsPointToYes: 'Знаки говорят — «да»',
+         yes: 'Да',
+         replyHazyTryAgain: 'Пока не ясно, попробуй снова',
+         askAgainLater: 'Спроси позже',
+         betterNotTellYouNow: 'Лучше не рассказывать',
+         cannotPredictNow: 'Сейчас нельзя предсказать',
+         concentrateAndAskAgain: 'Сконцентрируйся и спроси опять',
+         dontCountOnIt: 'Даже не думай',
+         myReplyIsNo: 'Мой ответ — «нет»',
+         mySourcesSayNo: 'По моим данным — «нет»',
+         outlookNotSoGood: 'Перспективы не очень хорошие',
+         veryDoubtful: 'Весьма сомнительно'
+       }
+     }
+
+     return messages[id]
+   }
+
+   function answer() {
+     const answers = [
+       { id: 'itIsCertain', color: "#0000ff82" },
+       { id: 'itIsDecidedlySo', color: "#0000ff82" },
+       { id: 'withoutADoubt', color: "#0000ff82" },
+       { id: 'yesDefinitely', color: "#0000ff82" },
+       { id: 'youMayRelyOnIt', color: "#0000ff82" },
+       { id: 'asISeeItYes', color: "green" },
+       { id: 'mostLikely', color: "green" },
+       { id: 'outlookGood', color: "green" },
+       { id: 'signsPointToYes', color: "green" },
+       { id: 'yes', color: "green" },
+       { id: 'replyHazyTryAgain', color: "#ffde00a8" },
+       { id: 'askAgainLater', color: "#ffde00a8" },
+       { id: 'betterNotTellYouNow', color: "#ffde00a8" },
+       { id: 'cannotPredictNow', color: "#ffde00a8" },
+       { id: 'concentrateAndAskAgain', color: "#ffde00a8" },
+       { id: 'dontCountOnIt', color: "#ff000087" },
+       { id: 'myReplyIsNo', color: "#ff000087" },
+       { id: 'mySourcesSayNo', color: "#ff000087" },
+       { id: 'outlookNotSoGood', color: "#ff000087" },
+       { id: 'veryDoubtful', color: "#ff000087" }
+     ];
+
+     const answer = answers[Math.floor(answers.length * Math.random())]
+     return { message: getString(answer.id), color: answer.color }
+   }
+
+   function onBallClick(e) {
+     const ball = document.getElementsByClassName("ball")[0];
+     shake(ball, 20);
+
+     const triangleContainerEl = document.getElementsByClassName(
+       "triangle-container"
+     )[0];
+     triangleContainerEl.classList.remove("fade-in");
+     triangleContainerEl.classList.add("fade-out");
+
+     setTimeout(function() {
+       const { message, color } = answer();
+       say(message)
+
+       const answerEl = document.getElementsByClassName("answer")[0];
+       answerEl.innerHTML = message;
+
+       const triangleEl = document.getElementsByClassName("triangle")[0];
+       triangleEl.style["border-top"] = `28vh solid ${color}`;
+
+       triangleContainerEl.classList.remove("fade-out");
+       triangleContainerEl.classList.add("fade-in");
+     }, 500);
+   }
+
+   // Shake ball
+   var shakingElements = [];
+
+   var shake = function(element, magnitude = 16, angular = false) {
+     //First set the initial tilt angle to the right (+1)
+     var tiltAngle = 1;
+
+     //A counter to count the number of shakes
+     var counter = 1;
+
+     //The total number of shakes (there will be 1 shake per frame)
+     var numberOfShakes = 15;
+
+     //Capture the element's position and angle so you can
+     //restore them after the shaking has finished
+     var startX = 0,
+         startY = 0,
+         startAngle = 0;
+
+     // Divide the magnitude into 10 units so that you can
+     // reduce the amount of shake by 10 percent each frame
+     var magnitudeUnit = magnitude / numberOfShakes;
+
+     //The `randomInt` helper function
+     var randomInt = (min, max) => {
+       return Math.floor(Math.random() * (max - min + 1)) + min;
+     };
+
+     //Add the element to the `shakingElements` array if it
+     //isn't already there
+     if (shakingElements.indexOf(element) === -1) {
+       //console.log("added")
+       shakingElements.push(element);
+
+       //Add an `updateShake` method to the element.
+       //The `updateShake` method will be called each frame
+       //in the game loop. The shake effect type can be either
+       //up and down (x/y shaking) or angular (rotational shaking).
+       if (angular) {
+         angularShake();
+       } else {
+         upAndDownShake();
+       }
+     }
+
+     //The `upAndDownShake` function
+     function upAndDownShake() {
+       //Shake the element while the `counter` is less than
+       //the `numberOfShakes`
+       if (counter < numberOfShakes) {
+         //Reset the element's position at the start of each shake
+         element.style.transform =
+           "translate(" + startX + "px, " + startY + "px)";
+
+         //Reduce the magnitude
+         magnitude -= magnitudeUnit;
+
+         //Randomly change the element's position
+         var randomX = randomInt(-magnitude, magnitude);
+         var randomY = randomInt(-magnitude, magnitude);
+
+         element.style.transform =
+           "translate(" + randomX + "px, " + randomY + "px)";
+
+         //Add 1 to the counter
+         counter += 1;
+
+         requestAnimationFrame(upAndDownShake);
+       }
+
+       //When the shaking is finished, restore the element to its original
+       //position and remove it from the `shakingElements` array
+       if (counter >= numberOfShakes) {
+         element.style.transform = "translate(" + startX + ", " + startY + ")";
+         shakingElements.splice(shakingElements.indexOf(element), 1);
+       }
+     }
+
+     //The `angularShake` function
+     function angularShake() {
+       if (counter < numberOfShakes) {
+         console.log(tiltAngle);
+         //Reset the element's rotation
+         element.style.transform = "rotate(" + startAngle + "deg)";
+
+         //Reduce the magnitude
+         magnitude -= magnitudeUnit;
+
+         //Rotate the element left or right, depending on the direction,
+         //by an amount in radians that matches the magnitude
+         var angle = Number(magnitude * tiltAngle).toFixed(2);
+         console.log(angle);
+         element.style.transform = "rotate(" + angle + "deg)";
+         counter += 1;
+
+         //Reverse the tilt angle so that the element is tilted
+         //in the opposite direction for the next shake
+         tiltAngle *= -1;
+
+         requestAnimationFrame(angularShake);
+       }
+
+       //When the shaking is finished, reset the element's angle and
+       //remove it from the `shakingElements` array
+       if (counter >= numberOfShakes) {
+         element.style.transform = "rotate(" + startAngle + "deg)";
+         shakingElements.splice(shakingElements.indexOf(element), 1);
+         //console.log("removed")
+       }
+     }
+   }
+  </script>
+</html>
